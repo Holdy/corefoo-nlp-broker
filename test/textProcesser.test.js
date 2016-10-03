@@ -246,7 +246,6 @@ describe('broker', function() {
         expect(intent.where[0]).to.equal({concept: '?'});
         expect(intent.purpose[0]).to.equal({words:['holiday']});
         intent.type == intentType.query; //TODO should implies a recommendation?
-        // TODO the kremlin was built by russia. (above doesn't capture 'in' properly).
     });
 
 

@@ -7,6 +7,8 @@ var outboundCallback = null;
 var providers = [];
 var providerChain = null;
 
+var userData = {allowLogging:true};
+
 function setProviders(providerArray) {
     providers = providerArray;
     var providerChainTail = null;
@@ -25,12 +27,12 @@ function setOutboundCallback(callback) {
     outboundCallback = callback;
 }
 
-var debugActive = true;
+var loggingActive = true;
 
 function output(outputData, callback) {
     if (outboundCallback) {
 
-        if (!outputData.debug || debugActive) {
+        if (!outputData.logging || loggingActive) {
             outboundCallback(outputData, callback);
         } else if (callback) {
             callback();
@@ -39,10 +41,10 @@ function output(outputData, callback) {
     }
 }
 
-function buildResponse(messageText, chatId) {
+function buildResponse(messageText, clientData) {
     return {
         text:   messageText,
-        chatId: chatId
+        'clientData': clientData
     };
 }
 
@@ -66,7 +68,6 @@ function getResponseImpl(interpretation, context, responseList, providerNode, ca
                 getResponseImpl(interpretation, context, responseList, providerNode.next, callback);
             }
         });
-
     }
 }
 
@@ -84,13 +85,17 @@ function inbound (data) {
         var context = {
 
             send: function (messageData, callback) {
-                var response = buildResponse(messageData.text, data.chatId);
-                if (messageData.debug) {
-                    response.debug = true;
+                var response = buildResponse(messageData.text, data.clientData);
+                if (messageData.logging) {
+                    response.logging = true;
                 }
-                output(response, callback);
-            },
-            clientData: data.clientData
+
+                if (!response.logging || userData.allowLogging ) {
+                    output(response, callback);
+                } else if (callback) {
+                    callback();
+                }
+            }
         };
 
         getCandidateResponses(result.data.interpretations[0], context, function(err, responseList) {
@@ -99,7 +104,7 @@ function inbound (data) {
                 var response = responseList[0];
 
                 if (response.text) {
-                    output(buildResponse(response.text, data.chatId));
+                    output(buildResponse(response.text, data.clientData));
                 }
 
                 if (response.execute) {
@@ -110,7 +115,7 @@ function inbound (data) {
                     // TODO - ERROR response had neither text or execute.
                 }
             } else {
-                output(buildResponse('NADA :poop:', data.chatId));
+                output(buildResponse('NADA :poop:', data.clientData));
             }
 
         });
@@ -118,11 +123,10 @@ function inbound (data) {
         // If we have begun a process - Eg Rainbird Query, the brokerContext
         // will specify that the 'driver' is the given Rainbird map (with queryID etc).
 
-
         // Driver will have conversation stack - specifying 'agent/driver' for each step.
 
     } catch (error) {
-        var response = buildResponse('Catastrophic error!', data.chatId);
+        var response = buildResponse('Catastrophic error!', data.clientData);
         response.debug = true;
         output(response);
     }
