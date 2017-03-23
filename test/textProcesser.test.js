@@ -77,7 +77,7 @@ describe('broker', function() {
         isValidWord: function(word) {
             return word == 'i' ||
                     word == 'like' ||
-                word == 'groobfleeb' ||
+                    word == 'groobfleeb' ||
                     word == 'and' ||
                     word == 'snorzels';
         }
@@ -180,6 +180,28 @@ describe('broker', function() {
         intent.target[0].to.eql({words:['the','lights']});
         intent.type == intentType.action;
         intent.expression = {value: 'status=off'};
+    });
+
+    it('should parse command - turn logging off', function(done) {
+        var result = textProcessor.getIntent('turn logging off');
+        expect(result.data.interpretations[0].words).to.eql(['turn','logging','off']);
+
+        var intent = result.data.interpretations[0].intent;
+        expect(intent.target[0]).to.eql({words:['logging']});
+        expect(intent.type).to.eql(intentType.action);
+        expect(intent.expression).to.eql('status=off');
+        done();
+    });
+
+    it('should parse command - turn logging on', function(done) {
+        var result = textProcessor.getIntent('turn logging on');
+        expect(result.data.interpretations[0].words).to.eql(['turn','logging','on']);
+
+        var intent = result.data.interpretations[0].intent;
+        expect(intent.target[0]).to.eql({words:['logging']});
+        expect(intent.type).to.eql(intentType.action);
+        expect(intent.expression).to.eql('status=on');
+        done();
     });
 
     it.skip('should parse command - off lights', function(done) {

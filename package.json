@@ -13,5 +13,8 @@
   "bugs": {
     "url": "https://github.com/Holdy/corefoo-nlp-broker/issues"
   },
-  "homepage": "https://github.com/Holdy/corefoo-nlp-broker#readme"
+  "homepage": "https://github.com/Holdy/corefoo-nlp-broker#readme",
+  "dependencies": {
+    "corefoo-nlp": "0.0.x"
+  }
 }

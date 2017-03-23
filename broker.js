@@ -9,6 +9,8 @@ var providerChain = null;
 
 var userData = {allowLogging:true};
 
+var behaviour = {loggingActive: false};
+
 function setProviders(providerArray) {
     providers = providerArray;
     var providerChainTail = null;
@@ -27,12 +29,11 @@ function setOutboundCallback(callback) {
     outboundCallback = callback;
 }
 
-var loggingActive = true;
 
 function output(outputData, callback) {
     if (outboundCallback) {
 
-        if (!outputData.logging || loggingActive) {
+        if (!outputData.logging || behaviour.loggingActive) {
             outboundCallback(outputData, callback);
         } else if (callback) {
             callback();
@@ -136,9 +137,28 @@ function inbound (data) {
 function create() { // futureproofing.
     return this;
 }
-module.exports.create = create;
+
+var interface;
+function getInterface() {
+    if (!interface) {
+        interface = {
+            setBehaviour: function (name, value) {
+                behaviour[name] = value;
+            },
+            getBehaviour: function(name) {
+                return behaviour[name];
+            }
+        };
+    }
+
+    return interface;
+}
+
 module.exports.inbound = inbound;
 module.exports.setOutboundCallback = setOutboundCallback;
+
+module.exports.getInterface = getInterface;
+module.exports.create = create;
 module.exports.setProviders = setProviders;
 module.exports.processQuery = intentActuator.processQuery;
 module.exports.processFilter = intentActuator.processFilter;
