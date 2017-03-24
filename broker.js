@@ -4,25 +4,25 @@ var textProcessor = require('./lib/textProcessor');
 var intentActuator = require('./lib/intentActuator');
 var outboundCallback = null;
 
-var providers = [];
 var providerChain = null;
+var providerChainTail = null;
 
 var userData = {allowLogging:true};
 
 var behaviour = {loggingActive: false};
 
-function setProviders(providerArray) {
-    providers = providerArray;
-    var providerChainTail = null;
-
-    providers.forEach(function(item) {
+function addProvider(item) {
+    if (item != null) {
+        var itemWrapper = {provider:item, next:null}
         if (providerChainTail === null) {
-            providerChainTail = providerChain = {provider:item, next:null};
+            providerChainTail = providerChain = itemWrapper;
         } else {
-            providerChainTail.next = {provider:item, next:null};
+            providerChainTail.next = itemWrapper;
             providerChainTail = providerChainTail.next;
         }
-    });
+    }
+
+    return this;
 }
 
 function setOutboundCallback(callback) {
@@ -159,7 +159,7 @@ module.exports.setOutboundCallback = setOutboundCallback;
 
 module.exports.getInterface = getInterface;
 module.exports.create = create;
-module.exports.setProviders = setProviders;
+module.exports.addProvider = addProvider;
 module.exports.processQuery = intentActuator.processQuery;
 module.exports.processFilter = intentActuator.processFilter;
 module.exports.intentType = intentType;
