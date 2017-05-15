@@ -2,6 +2,9 @@
 var intentType = require('./lib/intentType');
 var textProcessor = require('./lib/textProcessor');
 var intentActuator = require('./lib/intentActuator');
+
+var corefooNLP = require('corefoo-nlp');
+
 var outboundCallback = null;
 
 var providerChain = null;
@@ -91,6 +94,10 @@ function inbound (data) {
                     response.logging = true;
                 }
 
+                if (messageData.style) {
+                    response.style = messageData.style;
+                }
+
                 if (!response.logging || userData.allowLogging ) {
                     output(response, callback);
                 } else if (callback) {
@@ -98,6 +105,8 @@ function inbound (data) {
                 }
             }
         };
+
+        result.data.interpretations[0].intentTree = corefooNLP.intentTreeFromText(inputText);
 
         getCandidateResponses(result.data.interpretations[0], context, function(err, responseList) {
 
@@ -109,14 +118,16 @@ function inbound (data) {
                 }
 
                 if (response.execute) {
-                    response.execute();
+                    response.execute(context, context);
                 }
 
                 if (!response.text && !response.execute) {
                     // TODO - ERROR response had neither text or execute.
                 }
             } else {
-                output(buildResponse('NADA :poop:', data.clientData));
+                if (data.channel.oneToOne) {
+                    output(buildResponse('NADA :poop:', data.clientData));
+                }
             }
 
         });

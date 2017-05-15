@@ -1,6 +1,6 @@
 {
   "name": "corefoo-nlp-broker",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "Broker for handing off NLP processing tasks.",
   "main": "broker.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "homepage": "https://github.com/Holdy/corefoo-nlp-broker#readme",
   "dependencies": {
-    "corefoo-nlp": "0.0.x"
+    "corefoo-nlp": "0.1.x"
   },
   "license": "MIT",
   "publishConfig": {
