@@ -16,6 +16,9 @@ var behaviour = {loggingActive: false};
 
 function addProvider(item) {
     if (item != null) {
+        if (!item.name) {
+            throw new Error('Provider does not have a .name property.');
+        }
         var itemWrapper = {provider:item, next:null}
         if (providerChainTail === null) {
             providerChainTail = providerChain = itemWrapper;
@@ -58,13 +61,15 @@ function getCandidateResponses(interpretation, context, callback) {
 
 function getResponseImpl(interpretation, context, responseList, providerNode, callback) {
     if (providerNode === null) {
+        console.log('Chain complete');
         // end of the chain.
         callback(null, responseList);
     } else {
-
+        console.log('trying: ' + providerNode.provider.name);
         providerNode.provider.getCandidateResponse(interpretation, context, function(err, result) {
             if (err) {
-
+                //TODO some error handling.
+                getResponseImpl(interpretation, context, responseList, providerNode.next, callback);
             } else {
                 if (result != null) {
                     responseList.push(result);
@@ -108,7 +113,7 @@ function inbound (data) {
 
         result.data.interpretations[0].intentTree = corefooNLP.intentTreeFromText(inputText);
 
-        getCandidateResponses(result.data.interpretations[0], context, function(err, responseList) {
+        getCandidateResponses(result    .data.interpretations[0], context, function(err, responseList) {
 
             if (responseList.length > 0) {
                 var response = responseList[0];
