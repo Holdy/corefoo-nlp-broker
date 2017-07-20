@@ -112,6 +112,7 @@ function inbound (data) {
         };
 
         result.data.interpretations[0].intentTree = corefooNLP.intentTreeFromText(inputText);
+        result.data.interpretations[0].rawText = inputText;
 
         getCandidateResponses(result    .data.interpretations[0], context, function(err, responseList) {
 
